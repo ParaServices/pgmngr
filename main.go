@@ -14,6 +14,16 @@ import (
 	"github.com/urfave/cli"
 )
 
+func prettyPrintJSON(b []byte) error {
+	var prettyJSON bytes.Buffer
+	err := json.Indent(&prettyJSON, b, "", "\t")
+	if err != nil {
+		return pgmngr.NewError(err)
+	}
+	fmt.Println(string(prettyJSON.Bytes()))
+	return nil
+}
+
 func displayErrorOrMessage(err error) error {
 	if err != nil {
 		color.Error.Tips(err.Error())
@@ -23,13 +33,10 @@ func displayErrorOrMessage(err error) error {
 			if err != nil {
 				color.Error.Sprintf(err.Error())
 			}
-			var prettyJSON bytes.Buffer
-			err = json.Indent(&prettyJSON, b, "", "\t")
+			err = prettyPrintJSON(b)
 			if err != nil {
 				color.Error.Sprintf(err.Error())
-				return cli.NewExitError(color.Error.Sprintf(""), 1)
 			}
-			fmt.Println(string(prettyJSON.Bytes()))
 			return cli.NewExitError(color.Error.Sprintf(""), 1)
 
 		}
@@ -78,7 +85,7 @@ func main() {
 					Action: func(c *cli.Context) error {
 						if len(c.Args()) == 0 {
 							displayErrorOrMessage(
-								errgo.New(errors.New("migration name not given! try `pgmngr migration NameGoesHere`")),
+								errgo.New(errors.New("migration name not given, try `pgmngr migration new NameGoesHere`")),
 							)
 							return cli.NewExitError("", 1)
 						}
@@ -111,6 +118,23 @@ func main() {
 					Usage: "drops the database (all sessions must be disconnected first. this command does not force it)",
 					Action: func(c *cli.Context) error {
 						return displayErrorOrMessage(pgmngr.DropDatabase(*config))
+					},
+				},
+			},
+		},
+		{
+			Name:  "config",
+			Usage: "manage your database. use 'pgmngr db help' for more info",
+			Subcommands: []cli.Command{
+				{
+					Name:  "display",
+					Usage: "creates the database if it doesn't exist",
+					Action: func(c *cli.Context) error {
+						b, err := json.Marshal(config)
+						if err != nil {
+							return displayErrorOrMessage(pgmngr.CreateDatabase(*config))
+						}
+						return displayErrorOrMessage(prettyPrintJSON(b))
 					},
 				},
 			},
