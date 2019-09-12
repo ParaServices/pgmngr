@@ -134,7 +134,7 @@ steps:
       dockerfile: Dockerfile
       tags:
         - ${DRONE_TAG:-${DRONE_BRANCH}}
-      repo: us.gcr.io/para-devops/pgmgnr
+      repo: us.gcr.io/para-devops/pgmngr
       json_key:
         from_secret: gcr-creds-container-builder-private-key
     depends_on:
