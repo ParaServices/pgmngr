@@ -106,7 +106,8 @@ func TestApplyMigration(t *testing.T) {
 			require.NoError(t, err)
 			defer f.Close()
 
-			migrationVersion := getVersionFromFileName(filepath.Base(path))
+			migrationVersion, err := getVersionFromFileName(filepath.Base(path))
+			require.NoError(t, err)
 
 			m, ok := migrationData[migrationVersion]
 			if !ok {

@@ -18,7 +18,7 @@ import (
 )
 
 func generateMigrationVersion(c *Config) string {
-	return strconv.FormatInt(time.Now().UnixNano(), 10)
+	return strconv.FormatInt(time.Now().Unix(), 10)
 }
 
 var upPlaceHolder = []byte(`-- SQL statement for migration goes here.`)
@@ -233,10 +233,22 @@ func createTableSchemaMigration(cfg *Config) error {
 	return nil
 }
 
-func getVersionFromFileName(fileName string) string {
+func getVersionFromFileName(fileName string) (string, error) {
 	baseTokens := strings.Split(fileName, ".")
 	subTokens := strings.Split(baseTokens[0], "_")
-	return subTokens[0]
+
+	// a bit redundant given that we are creating the migration numbers
+	// as Unix we need to consider existing migrations (we might just
+	// simply need to convert the timestamps to unix)
+	i, err := strconv.ParseInt(subTokens[0], 10, 64)
+	if err != nil {
+		return "", NewError(err)
+	}
+	t, err := time.Parse(time.RFC3339, time.Unix(i, 0).Format(time.RFC3339))
+	if err != nil {
+		return "", NewError(err)
+	}
+	return strconv.FormatInt(t.Unix(), 10), nil
 }
 
 type migrationFiles map[int64]string
@@ -261,7 +273,10 @@ func getMigrationFiles(mType migrationType, cfg *Config) (migrationFiles, error)
 			return nil
 		}
 		if filepath.Ext(path) == ".sql" {
-			versionStr := getVersionFromFileName(filepath.Base(path))
+			versionStr, err := getVersionFromFileName(filepath.Base(path))
+			if err != nil {
+				return NewError(err)
+			}
 			if mType == Forward && isUpMigrationRegex.Match([]byte(path)) {
 				versionInt64, err := strconv.ParseInt(versionStr, 10, 64)
 				if err != nil {
