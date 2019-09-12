@@ -8,11 +8,10 @@ import (
 
 	"github.com/ParaServices/errgo"
 	"github.com/ParaServices/pgmngr/pgmngr"
+	"github.com/ParaServices/pgmngr/version"
 	"github.com/gookit/color"
 	"github.com/urfave/cli"
 )
-
-const appRevisionTag = "0.1.0"
 
 func displayErrorOrMessage(err error) error {
 	if err != nil {
@@ -45,7 +44,7 @@ func main() {
 
 	app.Name = "pgmngr"
 	app.Usage = "Manage your Postgres database"
-	app.Version = appRevisionTag
+	app.Version = version.AppRevisionOrTag()
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{

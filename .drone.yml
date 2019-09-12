@@ -61,7 +61,6 @@ steps:
     commands:
       - apk add --update --no-cache alpine-sdk bash
       - go test -v ./...
-      - echo $?
 
   - name: slack-notification-finish-test
     image: plugins/slack
@@ -80,3 +79,66 @@ steps:
       status:
         - success
         - failure
+
+  - name: slack-notification-start-build-images
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack-webhook
+      channel: ci
+      username: drone
+      template: >
+        <{{ build.link }}|Container build(s) #{{ build.number }} started>
+        <http://github.com/{{ repo.owner }}/{{ repo.name }}/tree/{{ build.branch }}|
+        on {{ repo.name }}:{{ build.branch }}> by {{ build.author }}
+    depends_on:
+      - test
+      - slack-notification-finish-test
+    when:
+      ref:
+        - refs/heads/dev
+        - refs/heads/master
+        - refs/heads/release/*
+        - refs/tags/*
+      event:
+        - push
+        - tag
+        - deployment
+
+  - name: inject-version
+    image: us.gcr.io/para-devops/devops-tools:master
+    commands:
+      - find version -name "*.go" | xargs -0 inject-revision.sh --git-tag=$DRONE_TAG --git-branch=$DRONE_BRANCH --files
+    when:
+      ref:
+        - refs/heads/dev
+        - refs/heads/master
+        - refs/heads/release/*
+        - refs/tags/*
+      event:
+        - push
+        - tag
+        - deployment
+
+  - name: build-image-http-server
+    image: plugins/gcr
+    settings:
+      registry: us.gcr.io
+      dockerfile: dockerfiles/development/http-server.Dockerfile
+      tags:
+        - ${DRONE_TAG:-${DRONE_BRANCH}}
+      repo: us.gcr.io/para-devops/tapatybe-http_server
+      json_key:
+        from_secret: gcr-creds-container-builder-private-key
+    depends_on:
+      - slack-notification-start-build-images
+    when:
+      ref:
+        - refs/heads/dev
+        - refs/heads/master
+        - refs/heads/release/*
+        - refs/tags/*
+      event:
+        - tag
+        - deployment
+        - push
