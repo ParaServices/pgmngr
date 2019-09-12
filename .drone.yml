@@ -142,3 +142,31 @@ steps:
         - tag
         - deployment
         - push
+
+  - name: slack-notification-finish-build-images
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack-webhook
+      channel: ci
+      username: drone
+      template: >
+        <{{ build.link }}|Container build(s) #{{ build.number }} {{ build.status }}>
+        on <http://github.com/{{ repo.owner }}/{{ repo.name }}/tree/{{ build.branch }}|
+        {{ repo.name }}:{{ build.branch }}> by @{{ build.author }}
+    depends_on:
+      - build-image-http-server
+      - build-image-postgres-migration
+    when:
+      status:
+        - success
+        - failure
+      ref:
+        - refs/heads/dev
+        - refs/heads/master
+        - refs/heads/release/*
+        - refs/tags/*
+      event:
+        - push
+        - tag
+        - deployment
