@@ -91,7 +91,6 @@ type Config struct {
 		QueryParams   map[string]string `json:"query_params,omitempty"`
 	} `json:"connection"`
 	Migration struct {
-		DumpFile  string `json:"dump_file,omitempty"`
 		Directory string `json:"directory,omitempty"`
 		Table     struct {
 			Schema string `json:"schema"`
