@@ -19,7 +19,7 @@ func testConfigFile() *Config {
 	cfg.Connection.Username = testUsername()
 	cfg.Connection.Password = testPassword()
 	cfg.Connection.Host = testDBHost()
-	cfg.Connection.Database = "pgmgr_test_" + fake.Word() + "_" + fake.Word()
+	cfg.Connection.Database = "pgmngr_test_" + fake.Word() + "_" + fake.Word()
 
 	return &cfg
 }
@@ -42,7 +42,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	tmpDir2, tmpFile, err := createTempConfigFile(b, "", "", "pgmgr.json")
+	tmpDir2, tmpFile, err := createTempConfigFile(b, "", "", "pgmngr.json")
 	if err != nil {
 		errOK = mainErrorHandler(err)
 		if errOK {
@@ -78,14 +78,6 @@ func testUsername() string {
 
 func testPassword() string {
 	v := os.Getenv("PGMNGR_PASSWORD")
-	if v == "" {
-		return "pgmngr"
-	}
-	return v
-}
-
-func testDatabase() string {
-	v := os.Getenv("PGMNGR_DATABASE")
 	if v == "" {
 		return "pgmngr"
 	}

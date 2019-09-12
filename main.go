@@ -49,9 +49,10 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "config-file, c",
-			Value: ".pgmngr.json",
-			Usage: "Configures the path of the config file to be used to perform DB management",
+			Name:   "config-file, c",
+			Value:  ".pgmngr.json",
+			EnvVar: "PGMNGR_CONFIG_FILE",
+			Usage:  "Configures the path of the config file to be used to perform DB management",
 		},
 	}
 
@@ -76,7 +77,7 @@ func main() {
 					},
 					Action: func(c *cli.Context) error {
 						if len(c.Args()) == 0 {
-							return cli.NewExitError("migration name not given! try `pgmgr migration NameGoesHere`", 1)
+							return cli.NewExitError("migration name not given! try `pgmngr migration NameGoesHere`", 1)
 						}
 
 						return displayErrorOrMessage(pgmngr.CreateMigration(config, c.Args()[0], c.Bool("no-txn")))

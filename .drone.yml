@@ -16,6 +16,13 @@ volumes:
   - name: deps
     temp: {}
 
+services:
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: pgmngr
+      POSTGRES_PASSWORD: pgmngr
+
 steps:
   - name: slack-notification-start-test
     image: plugins/slack
@@ -42,6 +49,10 @@ steps:
 
   - name: test
     image: golang:1.12.5-alpine3.9
+    environment:
+      PGMNGR_DB_HOSt: postgres
+      PGMNGR_USERNAME: pgmngr
+      PGMNGR_PASSWORD: pgmngr
     volumes:
       - name: deps
         path: /go

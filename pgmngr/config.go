@@ -79,7 +79,7 @@ func LoadConfig(ctx cliContext, cfg *Config) error {
 	return nil
 }
 
-// Config stores the options used by pgmgr.
+// Config stores the options used by pgmngr.
 type Config struct {
 	Connection struct {
 		PingIntervals int               `json:"ping_intervals,omitempty"`
