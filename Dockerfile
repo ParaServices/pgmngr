@@ -12,11 +12,12 @@ RUN mkdir -p /go/src/github.com/ParaServices/pgmngr/
 
 WORKDIR /go/src/github.com/ParaServices/pgmngr/
 
-
 COPY . .
 
+RUN mkdir bin
+
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -mod vendor -v -a -installsuffix cgo -o pgmngr .
+    go build -mod vendor -v -a -installsuffix cgo -o ./bin/pgmngr
 
 # actual container
 FROM alpine:3.10
@@ -27,5 +28,5 @@ RUN mkdir -p /pgmngr
 
 WORKDIR /pgmngr
 
-COPY --from=builder /go/src/github.com/ParaServices/pgmngr/ .
+COPY --from=builder /go/src/github.com/ParaServices/pgmngr/bin/pgmngr .
 ENV PATH="${PATH}:/pgmngr"
