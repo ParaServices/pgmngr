@@ -17,7 +17,7 @@ type cliContext interface {
 // LoadConfig loads the configuration from a config file, ENV VARs or command
 // line arguments
 func LoadConfig(ctx cliContext, cfg *Config) error {
-	configPath := ctx.String("config")
+	configPath := ctx.String("config-file")
 
 	file, err := os.Open(configPath)
 	if err != nil {
