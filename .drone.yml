@@ -6,6 +6,13 @@ get:
   path: drone-kubernetes-secrets-data
   name: slack-webhook
 ---
+kind: secret
+name: gcr-creds-container-builder-private-key
+
+get:
+  path: drone-kubernetes-secrets-data
+  name: gcr-creds-container-builder-private-key
+---
 kind: pipeline
 name: build-test
 
@@ -124,10 +131,10 @@ steps:
     image: plugins/gcr
     settings:
       registry: us.gcr.io
-      dockerfile: dockerfiles/development/http-server.Dockerfile
+      dockerfile: Dockerfile
       tags:
         - ${DRONE_TAG:-${DRONE_BRANCH}}
-      repo: us.gcr.io/para-devops/tapatybe-http_server
+      repo: us.gcr.io/para-devops/pgmgnr
       json_key:
         from_secret: gcr-creds-container-builder-private-key
     depends_on:
