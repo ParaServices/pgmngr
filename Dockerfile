@@ -3,11 +3,15 @@ FROM golang:1.13.0-alpine3.10 as builder
 
 LABEL maintainer="kareem@joinpara.com"
 
+# remove testdata folder, we only need this for dev
+RUN rm -rf testdata
+
 RUN apk add --no-cache git=2.22.0-r0
 
 RUN mkdir -p /go/src/github.com/ParaServices/pgmngr/
 
 WORKDIR /go/src/github.com/ParaServices/pgmngr/
+
 
 COPY . .
 

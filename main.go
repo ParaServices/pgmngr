@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
@@ -76,10 +77,20 @@ func main() {
 					},
 					Action: func(c *cli.Context) error {
 						if len(c.Args()) == 0 {
-							return cli.NewExitError("migration name not given! try `pgmngr migration NameGoesHere`", 1)
+							displayErrorOrMessage(
+								errgo.New(errors.New("migration name not given! try `pgmngr migration NameGoesHere`")),
+							)
+							return cli.NewExitError("", 1)
 						}
 
 						return displayErrorOrMessage(pgmngr.CreateMigration(config, c.Args()[0], c.Bool("no-txn")))
+					},
+				},
+				{
+					Name:  "forward",
+					Usage: "applies all unapplied migrations in ascending order",
+					Action: func(c *cli.Context) error {
+						return displayErrorOrMessage(pgmngr.ApplyMigration(pgmngr.Forward, config))
 					},
 				},
 			},
@@ -100,13 +111,6 @@ func main() {
 					Usage: "drops the database (all sessions must be disconnected first. this command does not force it)",
 					Action: func(c *cli.Context) error {
 						return displayErrorOrMessage(pgmngr.DropDatabase(*config))
-					},
-				},
-				{
-					Name:  "migrate",
-					Usage: "applies any un-applied migrations in the migration folder",
-					Action: func(c *cli.Context) error {
-						return displayErrorOrMessage(pgmngr.ApplyMigration(pgmngr.Forward, config))
 					},
 				},
 			},

@@ -1,0 +1,20 @@
+{
+  "connection": {
+    "ping_intervals": 5,
+    "username": "pgmngr",
+    "password": "pgmngr",
+    "database": "pgmngr_test",
+    "host": "localhost",
+    "port": 5432,
+    "query_params": {
+      "sslmode": "disable"
+    }
+  },
+  "migration": {
+    "directory": "./testdata/migrations/",
+    "table": {
+      "schema": "public",
+      "table": "schema_migrations"
+    }
+  }
+}
