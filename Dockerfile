@@ -5,6 +5,10 @@ LABEL maintainer="kareem@joinpara.com"
 
 RUN apk add --no-cache git=2.22.0-r0
 
+RUN mkdir -p /go/src/github.com/ParaServices/pgmngr/
+
+WORKDIR /go/src/github.com/ParaServices/pgmngr/
+
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
@@ -19,5 +23,5 @@ RUN mkdir -p /pgmngr
 
 WORKDIR /pgmngr
 
-COPY --from=builder /go/pgmgr .
+COPY --from=builder /go/src/github.com/ParaServices/pgmngr/ .
 ENV PATH="${PATH}:/pgmngr"
