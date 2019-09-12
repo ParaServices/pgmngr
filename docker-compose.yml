@@ -1,0 +1,11 @@
+---
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: pgmngr
+      POSTGRES_PASSWORD: pgmngr
+    ports:
+      - 5432:5432
