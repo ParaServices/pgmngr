@@ -127,7 +127,7 @@ steps:
         - tag
         - deployment
 
-  - name: build-image-http-server
+  - name: build-image
     image: plugins/gcr
     settings:
       registry: us.gcr.io
@@ -162,8 +162,7 @@ steps:
         on <http://github.com/{{ repo.owner }}/{{ repo.name }}/tree/{{ build.branch }}|
         {{ repo.name }}:{{ build.branch }}> by @{{ build.author }}
     depends_on:
-      - build-image-http-server
-      - build-image-postgres-migration
+      - build-image
     when:
       status:
         - success
