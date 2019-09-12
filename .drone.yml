@@ -50,7 +50,7 @@ steps:
   - name: test
     image: golang:1.12.5-alpine3.9
     environment:
-      PGMNGR_DB_HOSt: postgres
+      PGMNGR_DB_HOST: postgres
       PGMNGR_USERNAME: pgmngr
       PGMNGR_PASSWORD: pgmngr
     volumes:
