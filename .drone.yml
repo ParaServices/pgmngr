@@ -59,8 +59,9 @@ steps:
     depends_on:
       - build-modules
     commands:
-      - apk add --update --no-cache alpine-sdk bash
+      - apk add --update --no-cache git
       - go test -v ./...
+      - echo $?
 
   - name: slack-notification-finish-test
     image: plugins/slack
