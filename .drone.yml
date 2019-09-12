@@ -59,7 +59,7 @@ steps:
     depends_on:
       - build-modules
     commands:
-      - apk add --update --no-cache git
+      - apk add --update --no-cache alpine-sdk bash
       - go test -v ./...
       - echo $?
 
