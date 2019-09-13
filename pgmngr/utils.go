@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func pingDatabase(db *sql.DB, dbPingTime int) error {
-	for i := 0; i < dbPingTime; i++ {
+func pingDatabase(db *sql.DB, cfg Config) error {
+	for i := 0; i < cfg.Connection.PingIntervals; i++ {
 		err := db.Ping()
 		if err == nil {
 			return err
@@ -15,7 +15,13 @@ func pingDatabase(db *sql.DB, dbPingTime int) error {
 		time.Sleep(time.Second)
 	}
 	return NewError(
-		fmt.Errorf("failed to ping the database after %v seconds", dbPingTime),
+		fmt.Errorf(
+			"failed to ping the database: %s on host: %s:%s after %v seconds",
+			cfg.Connection.Database,
+			cfg.Connection.Host,
+			cfg.Connection.Port,
+			cfg.Connection.PingIntervals,
+		),
 	)
 }
 

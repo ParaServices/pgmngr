@@ -22,7 +22,7 @@ func dbExists(cfg Config) (bool, error) {
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, cfg)
 	if err != nil {
 		return false, NewError(err)
 	}
@@ -63,7 +63,7 @@ func CreateDatabase(cfg Config) error {
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, cfg)
 	if err != nil {
 		return NewError(err)
 	}
@@ -125,7 +125,7 @@ func DropDatabase(cfg Config) error {
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, cfg)
 	if err != nil {
 		return NewError(err)
 	}

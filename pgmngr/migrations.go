@@ -113,7 +113,7 @@ func ApplyMigration(mType migrationType, cfg *Config) error {
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, *cfg)
 	if err != nil {
 		return NewError(err)
 	}
@@ -193,7 +193,7 @@ func schemaMigrationsTableExists(cfg *Config) (bool, error) {
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, *cfg)
 	if err != nil {
 		return false, NewError(err)
 	}
@@ -239,7 +239,7 @@ func createTableSchemaMigration(cfg *Config) error {
 		}
 		defer db.Close()
 
-		err = pingDatabase(db, cfg.Connection.PingIntervals)
+		err = pingDatabase(db, *cfg)
 		if err != nil {
 			return NewError(err)
 		}
@@ -347,7 +347,7 @@ func getUnAppliedMigrationFiles(mType migrationType, cfg *Config) (migrationFile
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, *cfg)
 	if err != nil {
 		return nil, NewError(err)
 	}
