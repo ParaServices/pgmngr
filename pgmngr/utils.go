@@ -16,7 +16,7 @@ func pingDatabase(db *sql.DB, cfg Config) error {
 	}
 	return NewError(
 		fmt.Errorf(
-			"failed to ping the database: %s on host: %s:%s after %v seconds",
+			"failed to ping the database: %s on host: %s:%v after %v seconds",
 			cfg.Connection.Database,
 			cfg.Connection.Host,
 			cfg.Connection.Port,
