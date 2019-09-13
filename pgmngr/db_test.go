@@ -10,7 +10,7 @@ import (
 func TestCreateAndDropDatabase(t *testing.T) {
 	t.Run("db already exists", func(t *testing.T) {
 		cfg := testConfig(t)
-		cfg.Connection.Database = "template1"
+		cfg.Connection.Admin.Database = "template1"
 		err := CreateDatabase(*cfg)
 		require.Error(t, err)
 	})
@@ -18,7 +18,7 @@ func TestCreateAndDropDatabase(t *testing.T) {
 	t.Run("database does not exist", func(t *testing.T) {
 		dbName := "pgmngr_test_" + fake.Word()
 		cfg := testConfig(t)
-		cfg.Connection.Database = dbName
+		cfg.Connection.Migration.Database = dbName
 		var err error
 		err = CreateDatabase(*cfg)
 		require.NoError(t, err)

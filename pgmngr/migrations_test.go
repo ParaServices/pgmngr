@@ -158,7 +158,7 @@ func TestApplyMigration(t *testing.T) {
 	require.NoError(t, err)
 
 	for i := range tables {
-		cfg.Connection.PingIntervals = 300
+		cfg.Connection.Migration.PingIntervals = 300
 		exists, err := tableExists(schemaName, tables[i], cfg)
 		require.NoError(t, err)
 		require.True(t, exists)
@@ -199,7 +199,7 @@ func tableExists(schemaName, tableName string, cfg *Config) (bool, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, NewError(
-				fmt.Errorf("database: %s already exists", cfg.Connection.Database),
+				fmt.Errorf("database: %s already exists", cfg.Connection.Migration.Database),
 			)
 		}
 		return false, NewError(err)

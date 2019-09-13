@@ -76,22 +76,28 @@ var stmntCreateExtensionDBLink = `
   CREATE EXTENSION IF NOT EXISTS dblink;
 `
 
-var stmntDropExtensionDBLink = `
-  DROP EXTENSION IF NOT EXISTS dblink;
-`
-
 var stmntCreateDatabaseFn = `
 CREATE FUNCTION pg_temp.create_database(
-    _template_db TEXT,
-    _database TEXT,
-    _owner TEXT
+  _host TEXT,
+  _port TEXT,
+  _template_db TEXT,
+  _admin_username TEXT,
+  _admin_password TEXT,
+  _database TEXT,
+  _owner TEXT
 ) RETURNS INTEGER AS
 $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_database WHERE datname = _database) THEN
     RAISE NOTICE 'database: %s already exists', _database;
   ELSE
-    PERFORM dblink_connect('conn','host=localhost port=5432 dbname=postgres user=pgmngr password=pgmngr');
+    PERFORM dblink_connect('conn',format('host=%I port=%s dbname=%I user=%I password=%I',
+      _host,
+      _port,
+      _template_db,
+      _admin_username,
+      _admin_password
+    ));
     PERFORM dblink_exec(
       'conn',
       format('CREATE DATABASE %I WITH OWNER = %I', _database, _owner)::TEXT
@@ -108,12 +114,21 @@ var stmntCreateDatabase = `
 SELECT * FROM pg_temp.create_database(
   CAST(NULLIF($1, NULL) AS TEXT),
   CAST(NULLIF($2, NULL) AS TEXT),
-  CAST(NULLIF($3, NULL) AS TEXT)
+  CAST(NULLIF($3, NULL) AS TEXT),
+  CAST(NULLIF($4, NULL) AS TEXT),
+  CAST(NULLIF($5, NULL) AS TEXT),
+  CAST(NULLIF($6, NULL) AS TEXT),
+  CAST(NULLIF($7, NULL) AS TEXT)
 );
 `
 
 var stmntDropDatabaseFn = `
 CREATE FUNCTION pg_temp.drop_database(
+  _host TEXT,
+  _port TEXT,
+  _template_db TEXT,
+  _admin_username TEXT,
+  _admin_password TEXT,
   _database TEXT
 ) RETURNS bool AS
 $$
@@ -121,7 +136,13 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = _database) THEN
     RAISE EXCEPTION 'database: %s does not exists', _database;
   ELSE
-    PERFORM dblink_connect('conn','host=localhost port=5432 dbname=postgres user=pgmngr password=pgmngr');
+    PERFORM dblink_connect('conn',format('host=%I port=%s dbname=%I user=%I password=%I',
+      _host,
+      _port,
+      _template_db,
+      _admin_username,
+      _admin_password
+    ));
     PERFORM dblink_exec(
       'conn',
       format('DROP DATABASE %I', _database),
@@ -137,7 +158,12 @@ language plpgsql;
 
 var stmntDropDatabase = `
 SELECT * FROM pg_temp.drop_database(
-    CAST(NULLIF($1, NULL) AS TEXT)
+    CAST(NULLIF($1, NULL) AS TEXT),
+    CAST(NULLIF($2, NULL) AS TEXT),
+    CAST(NULLIF($3, NULL) AS TEXT),
+    CAST(NULLIF($4, NULL) AS TEXT),
+    CAST(NULLIF($5, NULL) AS TEXT),
+    CAST(NULLIF($6, NULL) AS TEXT)
 );
 `
 

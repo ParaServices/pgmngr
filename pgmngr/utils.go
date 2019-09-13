@@ -11,7 +11,7 @@ import (
 
 func pingDatabase(db *sql.DB, cfg Config) error {
 	var err error
-	for i := 0; i < cfg.Connection.PingIntervals; i++ {
+	for i := 0; i < cfg.Connection.Migration.PingIntervals; i++ {
 		err = db.Ping()
 		if err == nil {
 			return err
@@ -21,15 +21,39 @@ func pingDatabase(db *sql.DB, cfg Config) error {
 	errx := errgo.New(err)
 	errx.Message = fmt.Sprintf(
 		"failed to ping the database: %s on host: %s:%v after %v seconds",
-		cfg.Connection.Database,
-		cfg.Connection.Host,
-		cfg.Connection.Port,
-		cfg.Connection.PingIntervals,
+		cfg.Connection.Migration.Database,
+		cfg.Connection.Migration.Host,
+		cfg.Connection.Migration.Port,
+		cfg.Connection.Migration.PingIntervals,
 	)
-	errx.Details.Add("database", cfg.Connection.Database)
-	errx.Details.Add("host", cfg.Connection.Host)
-	errx.Details.Add("port", strconv.Itoa(cfg.Connection.Port))
-	errx.Details.Add("ping_time", strconv.Itoa(cfg.Connection.PingIntervals))
+	errx.Details.Add("database", cfg.Connection.Migration.Database)
+	errx.Details.Add("host", cfg.Connection.Migration.Host)
+	errx.Details.Add("port", strconv.Itoa(cfg.Connection.Migration.Port))
+	errx.Details.Add("ping_time", strconv.Itoa(cfg.Connection.Migration.PingIntervals))
+	return errx
+}
+
+func pingAdminDatabase(db *sql.DB, cfg Config) error {
+	var err error
+	for i := 0; i < cfg.Connection.Admin.PingIntervals; i++ {
+		err = db.Ping()
+		if err == nil {
+			return err
+		}
+		time.Sleep(time.Second)
+	}
+	errx := errgo.New(err)
+	errx.Message = fmt.Sprintf(
+		"failed to ping the database: %s on host: %s:%v after %v seconds",
+		cfg.Connection.Admin.Database,
+		cfg.Connection.Admin.Host,
+		cfg.Connection.Admin.Port,
+		cfg.Connection.Admin.PingIntervals,
+	)
+	errx.Details.Add("database", cfg.Connection.Admin.Database)
+	errx.Details.Add("host", cfg.Connection.Admin.Host)
+	errx.Details.Add("port", strconv.Itoa(cfg.Connection.Admin.Port))
+	errx.Details.Add("ping_time", strconv.Itoa(cfg.Connection.Admin.PingIntervals))
 	return errx
 }
 

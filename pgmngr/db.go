@@ -6,12 +6,10 @@ import (
 )
 
 const pgDriver = "postgres"
-const templateDB = "postgres"
 
 func dbExists(cfg Config) (bool, error) {
 	cfgTemplate := cfg
-	cfgTemplate.Connection.Database = templateDB
-	dbURL, err := cfgTemplate.dbURL()
+	dbURL, err := cfgTemplate.dbAdminURL()
 	if err != nil {
 		return false, NewError(err)
 	}
@@ -32,14 +30,14 @@ func dbExists(cfg Config) (bool, error) {
 		return false, NewError(err)
 	}
 
-	row := stmnt.QueryRow(cfg.Connection.Database)
+	row := stmnt.QueryRow(cfg.Connection.Migration.Database)
 
 	var exists bool
 	err = row.Scan(&exists)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, NewError(
-				fmt.Errorf("database: %s already exists", cfg.Connection.Database),
+				fmt.Errorf("database: %s already exists", cfg.Connection.Migration.Database),
 			)
 		}
 		return false, NewError(err)
@@ -51,8 +49,7 @@ func dbExists(cfg Config) (bool, error) {
 // CreateDatabase creates a database using the database name from the connection information
 func CreateDatabase(cfg Config) error {
 	cfgTemplate := cfg
-	cfgTemplate.Connection.Database = templateDB
-	dbURL, err := cfgTemplate.dbURL()
+	dbURL, err := cfgTemplate.dbAdminURL()
 	if err != nil {
 		return NewError(err)
 	}
@@ -77,7 +74,7 @@ func CreateDatabase(cfg Config) error {
 		return NewError(
 			fmt.Errorf(
 				"database: %s already exists",
-				cfg.Connection.Database),
+				cfg.Connection.Admin.Database),
 		)
 	}
 
@@ -85,7 +82,6 @@ func CreateDatabase(cfg Config) error {
 	if err != nil {
 		return NewError(err)
 	}
-	defer db.Exec(stmntCreateExtensionDBLink)
 
 	_, err = db.Exec(stmntCreateDatabaseFn)
 	if err != nil {
@@ -99,9 +95,13 @@ func CreateDatabase(cfg Config) error {
 	defer stmnt.Close()
 
 	_, err = stmnt.Exec(
-		templateDB,
-		cfg.Connection.Database,
-		cfg.Connection.Username,
+		cfg.Connection.Admin.Host,
+		cfg.Connection.Admin.Port,
+		cfg.Connection.Admin.Database,
+		cfg.Connection.Admin.Username,
+		cfg.Connection.Admin.Password,
+		cfg.Connection.Migration.Database,
+		cfg.Connection.Migration.Username,
 	)
 	if err != nil {
 		return NewError(err)
@@ -113,8 +113,7 @@ func CreateDatabase(cfg Config) error {
 // DropDatabase ...
 func DropDatabase(cfg Config) error {
 	cfgTemplate := cfg
-	cfgTemplate.Connection.Database = templateDB
-	dbURL, err := cfgTemplate.dbURL()
+	dbURL, err := cfgTemplate.dbAdminURL()
 	if err != nil {
 		return NewError(err)
 	}
@@ -139,7 +138,7 @@ func DropDatabase(cfg Config) error {
 		return NewError(
 			fmt.Errorf(
 				"database: %s does not exist",
-				cfg.Connection.Database,
+				cfg.Connection.Migration.Database,
 			),
 		)
 	}
@@ -148,7 +147,6 @@ func DropDatabase(cfg Config) error {
 	if err != nil {
 		return NewError(err)
 	}
-	defer db.Exec(stmntDropExtensionDBLink)
 
 	_, err = db.Exec(stmntDropDatabaseFn)
 	if err != nil {
@@ -161,7 +159,14 @@ func DropDatabase(cfg Config) error {
 	}
 	defer stmnt.Close()
 
-	_, err = stmnt.Exec(cfg.Connection.Database)
+	_, err = stmnt.Exec(
+		cfg.Connection.Admin.Host,
+		cfg.Connection.Admin.Port,
+		cfg.Connection.Admin.Database,
+		cfg.Connection.Admin.Username,
+		cfg.Connection.Admin.Password,
+		cfg.Connection.Migration.Database,
+	)
 	if err != nil {
 		return NewError(err)
 	}

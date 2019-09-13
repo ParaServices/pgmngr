@@ -211,9 +211,7 @@ func schemaMigrationsTableExists(cfg *Config) (bool, error) {
 	err = row.Scan(&exists)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return false, NewError(
-				fmt.Errorf("database: %s already exists", cfg.Connection.Database),
-			)
+			return false, nil
 		}
 		return false, NewError(err)
 	}

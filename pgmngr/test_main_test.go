@@ -16,10 +16,14 @@ var configFile string
 
 func testConfigFile() *Config {
 	cfg := Config{}
-	cfg.Connection.Username = testUsername()
-	cfg.Connection.Password = testPassword()
-	cfg.Connection.Host = testDBHost()
-	cfg.Connection.Database = "pgmngr_test_" + fake.Word() + "_" + fake.Word()
+	cfg.Connection.Migration.Username = testUsername()
+	cfg.Connection.Migration.Password = testPassword()
+	cfg.Connection.Migration.Host = testDBHost()
+	cfg.Connection.Migration.Database = "pgmngr_test_" + fake.Word() + "_" + fake.Word()
+	cfg.Connection.Admin.Username = testUsername()
+	cfg.Connection.Admin.Password = testPassword()
+	cfg.Connection.Admin.Host = testDBHost()
+	cfg.Connection.Admin.Database = "postgres"
 
 	return &cfg
 }
