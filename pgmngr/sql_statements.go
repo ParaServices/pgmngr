@@ -1,20 +1,44 @@
 package pgmngr
 
+var stmntInsertSchemaMigrationFn = `
+CREATE FUNCTION pg_temp.create_schema_migration(
+    _schema VARCHAR,
+    _table_name VARCHAR,
+    _schema_migration_verson INT8
+) RETURNS VOID AS
+$$
+BEGIN
+  EXECUTE format(
+    'INSERT INTO %I.%I(schema_migration_version)
+    VALUES (%s)', _schema, _table_name, _schema_migration_verson
+  );
+END;
+$$
+language plpgsql;
+`
+var stmntInsertSchemaMigration = `
+SELECT * FROM pg_temp.create_schema_migration(
+  CAST(NULLIF($1, NULL) AS VARCHAR),
+  CAST(NULLIF($2, NULL) AS VARCHAR),
+  CAST(NULLIF($3, NULL) AS INT8)
+)
+`
+
 var stmntAllSchemaMigrationsFn = `
 CREATE FUNCTION pg_temp.get_all_schema_migrations(
-    _schema_name TEXT,
-    _table_name TEXT
+  _schema_name TEXT,
+  _table_name TEXT
 ) RETURNS TABLE (
     schema_migration_version INT8
 ) AS
 $$
 BEGIN
-    RETURN QUERY
-    EXECUTE format(
-	'SELECT t.schema_migration_version
-	 FROM %I.%I t
-	', _schema_name, _table_name
-    );
+  RETURN QUERY
+  EXECUTE format(
+   'SELECT t.schema_migration_version
+    FROM %I.%I t
+   ', _schema_name, _table_name
+  );
 END;
 $$
 language plpgsql;
@@ -22,8 +46,8 @@ language plpgsql;
 
 var stmntAllSchemaMigrations = `
 SELECT * FROM pg_temp.get_all_schema_migrations(
-    CAST(NULLIF($1, NULL) AS TEXT),
-    CAST(NULLIF($2, NULL) AS TEXT)
+  CAST(NULLIF($1, NULL) AS TEXT),
+  CAST(NULLIF($2, NULL) AS TEXT)
 );
 `
 
@@ -38,8 +62,8 @@ SELECT EXISTS (
 
 var stmntCreateSchemaMigrationsTableFn = `
 CREATE FUNCTION pg_temp.create_schema_migrations_table(
-    _schema TEXT,
-    _database TEXT
+  _schema TEXT,
+  _database TEXT
 ) RETURNS INTEGER AS
 $$
 BEGIN
@@ -65,15 +89,15 @@ language plpgsql;
 `
 
 var stmntCreateSchemaMigrationsTable = `
-  SELECT *
-  FROM pg_temp.create_schema_migrations_table(
-    CAST(NULLIF($1, NULL) AS TEXT),
-    CAST(NULLIF($2, NULL) AS TEXT)
-  );
+SELECT *
+FROM pg_temp.create_schema_migrations_table(
+  CAST(NULLIF($1, NULL) AS TEXT),
+  CAST(NULLIF($2, NULL) AS TEXT)
+);
 `
 
 var stmntCreateExtensionDBLink = `
-  CREATE EXTENSION IF NOT EXISTS dblink;
+CREATE EXTENSION IF NOT EXISTS dblink;
 `
 
 var stmntCreateDatabaseFn = `
@@ -158,17 +182,17 @@ language plpgsql;
 
 var stmntDropDatabase = `
 SELECT * FROM pg_temp.drop_database(
-    CAST(NULLIF($1, NULL) AS TEXT),
-    CAST(NULLIF($2, NULL) AS TEXT),
-    CAST(NULLIF($3, NULL) AS TEXT),
-    CAST(NULLIF($4, NULL) AS TEXT),
-    CAST(NULLIF($5, NULL) AS TEXT),
-    CAST(NULLIF($6, NULL) AS TEXT)
+  CAST(NULLIF($1, NULL) AS TEXT),
+  CAST(NULLIF($2, NULL) AS TEXT),
+  CAST(NULLIF($3, NULL) AS TEXT),
+  CAST(NULLIF($4, NULL) AS TEXT),
+  CAST(NULLIF($5, NULL) AS TEXT),
+  CAST(NULLIF($6, NULL) AS TEXT)
 );
 `
 
 var stmntDBexists = `
 SELECT EXISTS(
-    SELECT 1 FROM pg_catalog.pg_database WHERE lower(datname) = lower($1)
+  SELECT 1 FROM pg_catalog.pg_database WHERE lower(datname) = lower($1)
 );
 `

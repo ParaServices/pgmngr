@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/icrowley/fake"
 	"github.com/stretchr/testify/require"
@@ -65,15 +66,6 @@ func TestCreateMigration(t *testing.T) {
 	})
 }
 
-var stmnttableExists = `
-SELECT EXISTS (
-   SELECT 1
-   FROM   information_schema.tables
-   WHERE  table_schema = $1
-   AND    table_name = $2
-   );
-`
-
 func TestApplyMigration(t *testing.T) {
 	cfg := testConfig(t)
 	err := CreateDatabase(*cfg)
@@ -88,6 +80,7 @@ func TestApplyMigration(t *testing.T) {
 	for i := 0; i < count; i++ {
 		f := fake.Word() + fake.Word() + fake.Word()
 		err = CreateMigration(cfg, f, false)
+		time.Sleep(time.Second * 1)
 		require.NoError(t, err)
 		migrationFiles[i] = f
 	}
@@ -158,14 +151,25 @@ func TestApplyMigration(t *testing.T) {
 	require.NoError(t, err)
 
 	for i := range tables {
-		cfg.Connection.Migration.PingIntervals = 300
+		cfg.Connection.Migration.PingIntervals = 5
 		exists, err := tableExists(schemaName, tables[i], cfg)
 		require.NoError(t, err)
 		require.True(t, exists)
 	}
 
-	// check if tables are created
+	migrations, err := getAllAppliedMigrations(cfg)
+	require.NoError(t, err)
+	require.Equal(t, count, len(migrations))
 }
+
+var stmnttableExists = `
+SELECT EXISTS (
+  SELECT 1
+  FROM information_schema.tables
+  WHERE table_schema = $1
+  AND table_name = $2
+);
+`
 
 func tableExists(schemaName, tableName string, cfg *Config) (bool, error) {
 	dbURL, err := cfg.dbURL()

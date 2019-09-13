@@ -124,6 +124,11 @@ func ApplyMigration(mType migrationType, cfg *Config) error {
 		}
 	}
 
+	_, err = db.Exec(stmntInsertSchemaMigrationFn)
+	if err != nil {
+		return NewError(err)
+	}
+
 	var exec execer
 	exec = db
 	for i := range mFilesKeysSorted {
@@ -166,6 +171,19 @@ func ApplyMigration(mType migrationType, cfg *Config) error {
 			rollback(tx)
 			return NewError(err)
 		}
+
+		schemaMigrationVersion, err := getVersionFromFileName(filepath.Base(filePath))
+		if err != nil {
+			rollback(tx)
+			return NewError(err)
+		}
+
+		_, err = exec.Exec(
+			stmntInsertSchemaMigration,
+			cfg.Migration.Table.Schema,
+			cfg.Migration.Table.Name,
+			schemaMigrationVersion,
+		)
 
 		if wrapInTxn {
 			err = tx.Commit()
