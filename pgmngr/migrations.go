@@ -62,6 +62,14 @@ func CreateMigration(c *Config, name string, noTransaction bool) error {
 
 var colorBlue = color.FgBlue.Render
 
+func wrapInTransaction(file string) bool {
+	return !strings.Contains(file, ".no_txn.")
+}
+
+type execer interface {
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
 // ApplyMigration ...
 func ApplyMigration(mType migrationType, cfg *Config) error {
 	// check if migration table exists
@@ -110,8 +118,25 @@ func ApplyMigration(mType migrationType, cfg *Config) error {
 		return NewError(err)
 	}
 
+	rollback := func(tx *sql.Tx) {
+		if tx != nil {
+			tx.Rollback()
+		}
+	}
+
+	var exec execer
+	exec = db
 	for i := range mFilesKeysSorted {
+		var tx *sql.Tx
 		filePath := mFiles[mFilesKeysSorted[i]]
+		wrapInTxn := wrapInTransaction(filePath)
+		if wrapInTxn {
+			tx, err = db.Begin()
+			if err != nil {
+				return NewError(err)
+			}
+			exec = tx
+		}
 		color.Note.Tips("Running migration for: %s", colorBlue(filePath))
 		f, err := os.Open(filePath)
 		if err != nil {
@@ -136,9 +161,18 @@ func ApplyMigration(mType migrationType, cfg *Config) error {
 			return NewError(err)
 		}
 
-		_, err = db.Exec(builder.String())
+		_, err = exec.Exec(builder.String())
 		if err != nil {
+			rollback(tx)
 			return NewError(err)
+		}
+
+		if wrapInTxn {
+			err = tx.Commit()
+			if err != nil {
+				rollback(tx)
+				return NewError(err)
+			}
 		}
 		color.Success.Tips("Migration successful using migration file: %s", colorBlue(filePath))
 		continue
