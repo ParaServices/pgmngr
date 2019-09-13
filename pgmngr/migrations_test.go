@@ -179,7 +179,7 @@ func tableExists(schemaName, tableName string, cfg *Config) (bool, error) {
 	}
 	defer db.Close()
 
-	err = pingDatabase(db, cfg.Connection.PingIntervals)
+	err = pingDatabase(db, *cfg)
 	if err != nil {
 		return false, NewError(err)
 	}
