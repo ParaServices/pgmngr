@@ -147,6 +147,7 @@ type Config struct {
 			Name   string `json:"name"`
 		} `json:"table,omitempty"`
 	} `json:"migration"`
+	ForceDropDB bool `json:"force_drop"`
 }
 
 const postgresScheme = "postgres"

@@ -196,3 +196,26 @@ SELECT EXISTS(
   SELECT 1 FROM pg_catalog.pg_database WHERE lower(datname) = lower($1)
 );
 `
+
+var stmntDropConnectionsFn = `
+CREATE OR REPLACE FUNCTION pg_temp.drop_connections(
+  _database TEXT
+) RETURNS VOID AS
+$$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = _database) THEN
+    RAISE EXCEPTION 'database: %s does not exists', _database;
+  ELSE 
+    PERFORM pg_terminate_backend(pg_stat_activity.pid)
+    FROM pg_stat_activity
+    WHERE pg_stat_activity.datname = _database
+    AND pid <> pg_backend_pid();
+  END IF;
+END;
+$$
+language plpgsql;
+`
+
+var stmntDropConnections = `
+SELECT   pg_temp.drop_connections(CAST(NULLIF($1, NULL) AS TEXT));
+`

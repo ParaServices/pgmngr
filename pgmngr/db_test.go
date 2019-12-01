@@ -28,4 +28,19 @@ func TestCreateAndDropDatabase(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
+
+	t.Run("database does not exist and force close all connections", func(t *testing.T) {
+		dbName := "pgmngr_test_" + fake.Word()
+		cfg := testConfig(t)
+		cfg.ForceDropDB = true
+		cfg.Connection.Migration.Database = dbName
+		var err error
+		err = CreateDatabase(*cfg)
+		require.NoError(t, err)
+		err = DropDatabase(*cfg)
+		require.NoError(t, err)
+		exists, err := dbExists(*cfg)
+		require.NoError(t, err)
+		require.False(t, exists)
+	})
 }

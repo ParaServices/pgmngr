@@ -148,6 +148,26 @@ func DropDatabase(cfg Config) error {
 		return NewError(err)
 	}
 
+	if cfg.ForceDropDB == true {
+		_, err = db.Exec(stmntDropConnectionsFn)
+		if err != nil {
+			return NewError(err)
+		}
+
+		stmnt, err := db.Prepare(stmntDropConnections)
+		if err != nil {
+			return NewError(err)
+		}
+		defer stmnt.Close()
+
+		_, err = stmnt.Exec(
+			cfg.Connection.Admin.Database,
+		)
+		if err != nil {
+			return NewError(err)
+		}
+	}
+
 	_, err = db.Exec(stmntDropDatabaseFn)
 	if err != nil {
 		return NewError(err)
