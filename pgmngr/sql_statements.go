@@ -202,10 +202,11 @@ CREATE OR REPLACE FUNCTION pg_temp.drop_connections(
   _database TEXT
 ) RETURNS VOID AS
 $$
-BEGIN
+BEGIN  
   IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = _database) THEN
     RAISE EXCEPTION 'database: %s does not exists', _database;
-  ELSE 
+  ELSE     
+    EXECUTE 'REVOKE CONNECT ON DATABASE ' || _database ||  ' FROM public';
     PERFORM pg_terminate_backend(pg_stat_activity.pid)
     FROM pg_stat_activity
     WHERE pg_stat_activity.datname = _database

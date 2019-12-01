@@ -3,6 +3,7 @@ package pgmngr
 import (
 	"database/sql"
 	"fmt"
+	"log"
 )
 
 const pgDriver = "postgres"
@@ -149,6 +150,7 @@ func DropDatabase(cfg Config) error {
 	}
 
 	if cfg.ForceDropDB == true {
+		log.Println("force connection drop is enable. closing all connections now")
 		_, err = db.Exec(stmntDropConnectionsFn)
 		if err != nil {
 			return NewError(err)
