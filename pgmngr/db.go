@@ -163,7 +163,7 @@ func DropDatabase(cfg Config) error {
 		defer stmnt.Close()
 
 		_, err = stmnt.Exec(
-			cfg.Connection.Admin.Database,
+			cfg.Connection.Migration.Database,
 		)
 		if err != nil {
 			return NewError(err)
