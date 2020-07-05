@@ -45,7 +45,7 @@ steps:
         by {{ build.author }}
 
   - name: build-modules
-    image: golang:1.12.5-alpine3.9
+    image: golang:1.14.4-alpine3.12
     volumes:
       - name: deps
         path: /go
@@ -55,7 +55,7 @@ steps:
       - go mod vendor
 
   - name: test
-    image: golang:1.12.5-alpine3.9
+    image: golang:1.14.4-alpine3.12
     environment:
       PGMNGR_DB_HOST: postgres
       PGMNGR_USERNAME: pgmngr

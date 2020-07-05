@@ -22,7 +22,7 @@ func generateMigrationVersion(c *Config) string {
 }
 
 var upPlaceHolder = []byte(`-- SQL statement for migration goes here.`)
-var downPlaceHolder = []byte(`-- SQL statement for reversing/reverting the migration.\naslkdjfasklfjsaklfjsalkfjslk`)
+var downPlaceHolder = []byte(`-- SQL statement for reversing/reverting the migration.`)
 
 type migrationType int
 
@@ -184,6 +184,11 @@ func ApplyMigration(mType migrationType, cfg *Config) error {
 			cfg.Migration.Table.Name,
 			schemaMigrationVersion,
 		)
+
+		if err != nil {
+			rollback(tx)
+			return NewError(err)
+		}
 
 		if wrapInTxn {
 			err = tx.Commit()
@@ -377,7 +382,14 @@ func getUnAppliedMigrationFiles(mType migrationType, cfg *Config) (migrationFile
 	if err != nil {
 		return nil, NewError(err)
 	}
-	migrations, _ := sliceExclusionInt64s(mFiles.Versions(), appliedMigrations)
+	migrations, applied := sliceExclusionInt64s(mFiles.Versions(), appliedMigrations)
+
+	for i := range applied {
+		color.Note.Tips(
+			"Migration already applied: %v",
+			colorBlue(applied[i]),
+		)
+	}
 
 	unAppliedMigrations := make(migrationFiles)
 	for i := range migrations {
