@@ -5,8 +5,6 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/Masterminds/glide v0.13.2/go.mod h1:STyF5vcenH/rUqTEv+/hBXlSTo7KYwg2oc2f4tzPWic=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/vcs v1.13.0/go.mod h1:N09YCmOQr6RLxC6UNHzuVwAdodYbbnycGHSmwVJjcKA=
-github.com/ParaServices/errgo v0.2.2 h1:o6XkJ4a55kijOuBMDEd13ZgkoQzVhLMucD7z2HhgwLA=
-github.com/ParaServices/errgo v0.2.2/go.mod h1:qgVVfBNj85n4B1IsqzRAWXib00g6ntkamdiFG8C3H4w=
 github.com/ParaServices/errgo v0.3.0 h1:njiS7MmxApqMLBjYMgKGJg5sHE7CzM9CEdUsc5Ux+q8=
 github.com/ParaServices/errgo v0.3.0/go.mod h1:qgVVfBNj85n4B1IsqzRAWXib00g6ntkamdiFG8C3H4w=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
