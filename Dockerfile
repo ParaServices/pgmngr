@@ -1,5 +1,5 @@
 # builder
-FROM golang:1.14.4-alpine3.12 as builder
+FROM golang:1.15.2-alpine3.12 as builder
 
 LABEL maintainer="kareem@joinpara.com"
 
