@@ -173,3 +173,19 @@ func DropDatabase(cfg Config) error {
 
 	return nil
 }
+
+func ResetDatabase(cfg Config) error {
+	err := DropDatabase(cfg)
+	if err != nil {
+		return err
+	}
+	err = CreateDatabase(cfg)
+	if err != nil {
+		return err
+	}
+	err = ApplyMigration(Forward, &cfg)
+	if err != nil {
+		return err
+	}
+	return nil
+}

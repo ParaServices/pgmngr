@@ -120,6 +120,13 @@ func main() {
 						return displayErrorOrMessage(pgmngr.DropDatabase(*config))
 					},
 				},
+				{
+					Name:  "reset",
+					Usage: "reset the database (drops the database , create the data base and does the migration)",
+					Action: func(c *cli.Context) error {
+						return displayErrorOrMessage(pgmngr.ResetDatabase(*config))
+					},
+				},
 			},
 		},
 		{

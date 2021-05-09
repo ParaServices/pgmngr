@@ -28,4 +28,17 @@ func TestCreateAndDropDatabase(t *testing.T) {
 		require.NoError(t, err)
 		require.False(t, exists)
 	})
+	t.Run("database reset", func(t *testing.T) {
+		dbName := "pgmngr_test_" + fake.Word()
+		cfg := testConfig(t)
+		cfg.Connection.Migration.Database = dbName
+		var err error
+		err = CreateDatabase(*cfg)
+		require.NoError(t, err)
+		err = ResetDatabase(*cfg)
+		require.NoError(t, err)
+		exists, err := dbExists(*cfg)
+		require.NoError(t, err)
+		require.False(t, exists)
+	})
 }
