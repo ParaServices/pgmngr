@@ -39,6 +39,6 @@ func TestCreateAndDropDatabase(t *testing.T) {
 		require.NoError(t, err)
 		exists, err := dbExists(*cfg)
 		require.NoError(t, err)
-		require.False(t, exists)
+		require.True(t, exists)
 	})
 }
